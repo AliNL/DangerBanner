@@ -1,11 +1,10 @@
 {
   "name": "Danger Banner",
-  "version": "1.2",
+  "version": "1.3",
   "description": "An extension to show banner on specific path.",
   "manifest_version": 2,
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "browser_action": {
     "default_icon": {
@@ -22,7 +21,8 @@
         "banner.js"
       ],
       "matches": [
-        "<all_urls>"
+        "https://*/*",
+        "http://*/*"
       ],
       "run_at": "document_end"
     }
