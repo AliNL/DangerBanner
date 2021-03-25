@@ -3,9 +3,11 @@ import { Input } from 'antd';
 import './App.less';
 
 const chrome = window.chrome;
-const Editable = ({ initValue, initEditing, save }) => {
+const notEmpty = (path) => (path.trim().length > 0);
+
+const Editable = ({ initValue, initEditing, saveItem, deleteItem }) => {
+  console.log(initValue, initEditing);
   const [editing, setEditing] = useState(initEditing);
-  const [value, setValue] = useState(initValue);
   const [unsaved, setUnsaved] = useState(false);
   const inputRef = useRef(null);
   useEffect(() => {
@@ -19,18 +21,17 @@ const Editable = ({ initValue, initEditing, save }) => {
         <Input
           ref={inputRef}
           className='CustomInput'
-          defaultValue={value}
+          defaultValue={initValue}
           placeholder='Please input dangerous path'
           onFocus={() => {
             setUnsaved(false);
           }}
-          onBlur={() => {
-            setUnsaved(true);
+          onBlur={(e) => {
+            setUnsaved(e.target.value !== initValue);
           }}
           onPressEnter={(e) => {
-            setValue(e.target.value);
             setEditing(false);
-            save(e.target.value);
+            saveItem(e.target.value);
           }}
         />
       ) : (
@@ -41,9 +42,18 @@ const Editable = ({ initValue, initEditing, save }) => {
             setEditing(true);
           }}
         >
-          {value}
+          {initValue}
+
         </div>
       )}
+      <img
+        className='DeleteIcon'
+        onClick={(e) => {
+          deleteItem();
+          e.stopPropagation();
+        }}
+        src='/images/delete.png'
+      />
     </div>
   );
 };
@@ -53,32 +63,47 @@ const App = () => {
   const [pathList, setPathList] = useState(['']);
   useEffect(() => {
     chrome.storage.local.get({ [keyName]: [] }, (result) => {
-      if (result[keyName].length === 0) {
-        setPathList(['']);
-      } else {
-        setPathList(result[keyName]);
-      }
+      setPathList(result[keyName]);
     });
-  });
+  }, []);
 
-  const saveOne = (idx) => (value) => {
+  const saveItem = (idx) => (value) => {
     const newPathList = [...pathList];
     newPathList[idx] = value;
-    if (newPathList.length === idx + 1) {
-      newPathList.push('');
-    }
     setPathList(newPathList);
-    chrome.storage.local.set({ [keyName]: newPathList });
+    chrome.storage.local.set({ [keyName]: newPathList.filter(notEmpty) }, () => {
+      console.log('saved');
+    });
+  };
+
+  const deleteItem = (idx) => () => {
+    const newPathList = [...pathList];
+    newPathList.splice(idx, 1);
+    setPathList(newPathList);
+    chrome.storage.local.set({ [keyName]: newPathList.filter(notEmpty) }, () => {
+      console.log('saved');
+    });
   };
 
   return (
     <div className="Popup">
       <div className="Title">Show Alerts on Following Paths</div>
-      {pathList.map((path, idx) => <Editable
-        key={idx}
-        initValue={path}
-        initEditing={idx + 1 === pathList.length}
-        save={saveOne(idx)} />)}
+      <div className="Scrollable">
+        {pathList.map((path, idx) => <Editable
+          key={idx}
+          initValue={path}
+          initEditing={false}
+          saveItem={saveItem(idx)}
+          deleteItem={deleteItem(idx)}
+        />)}
+        <Editable
+          key={pathList.length}
+          initValue=''
+          initEditing={true}
+          saveItem={saveItem(pathList.length)}
+          deleteItem={deleteItem(pathList.length)}
+        />
+      </div>
     </div>
   );
 };
