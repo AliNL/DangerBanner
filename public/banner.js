@@ -24,4 +24,16 @@ const toggleBanner = () => {
   });
 };
 
+const handleKeydown = ({ shiftKey, metaKey }) => {
+  if (shiftKey && metaKey) {
+    banner.style.display = 'none';
+  }
+  setTimeout(() => {
+    chrome.storage.local.get({ [keyName]: [] }, (result) => {
+      banner.style.display = result[keyName].some((path) => window.location.href.match(path)) ? 'block' : 'none';
+    });
+  }, 3000);
+}
+
 setInterval(toggleBanner, 200);
+window.addEventListener('keydown', handleKeydown);
