@@ -4,10 +4,12 @@ fileignoreconfig:
   - filename: config/jest/fileTransform.js
     checksum: 90b04b8ad823f8166ea6a4be0a426787ac25ee569135cf4ecfd4c34577309072
   - filename: package-lock.json
-    checksum: 0b8f32483b2504d1bb8cfef4a8f89f1121b2841dc5d94663f592602abe0f6c1f
+    checksum: 391b5ce0e1e88498399442ebd8211f6e908ec545caa7181a95102fe554f65c8e
   - filename: src/App.js
-    checksum: ca23b328348cc01135e7ff360d0183030adb10b99fff68bf855587b731f5e00d
+    checksum: 8ba9af982a9cab31f79f37dd981645f2f625295fc2325dc0f35f852cd3e7b865
   - filename: config/getHttpsConfig.js
     checksum: 74188b0d0a3a81d1586e2dcf953af935736b6cef0bf6b696b104cfc1b827be21
   - filename: config/webpack.config.js
     checksum: 573c8238739bcdc6d05e9b51016a3c8c88071cbb413aa9c102a0e26211ad7912
+  - filename: public/banner.js
+    checksum: 2aa29b2169eccf6c184d1dca4a907984cee9d4e25084b8cec71787b76598ddea

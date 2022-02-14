@@ -1,5 +1,5 @@
 const keyName = 'danger-banner-path-list';
-let lastHref = '';
+const enabledTimeName = 'danger-banner-enabled-time';
 const banner = document.createElement('div');
 banner.style = 'position: fixed;' +
   'top: 0;' +
@@ -14,26 +14,31 @@ banner.style = 'position: fixed;' +
   'display: none;';
 document.body.appendChild(banner);
 
+let interval = null;
+let lastHref = '';
+
 const toggleBanner = () => {
-  if (window.location.href === lastHref) {
-    return;
+  try {
+    chrome.storage.local.get({[keyName]: [], [enabledTimeName]: 0}, (result) => {
+      if (result[enabledTimeName] < Date.now()) {
+        banner.style.display = result[keyName].some((path) => window.location.href.match(path)) ? 'block' : 'none';
+      } else {
+        banner.style.display = 'none';
+      }
+    })
+  } catch (e) {
+    console.log('Please refresh the page');
+    clearInterval(interval);
   }
-  lastHref = window.location.href;
-  chrome.storage.local.get({ [keyName]: [] }, (result) => {
-    banner.style.display = result[keyName].some((path) => window.location.href.match(path)) ? 'block' : 'none';
-  });
 };
 
-const handleKeydown = ({ shiftKey, metaKey }) => {
-  if (shiftKey && metaKey) {
-    banner.style.display = 'none';
-  }
-  setTimeout(() => {
-    chrome.storage.local.get({ [keyName]: [] }, (result) => {
-      banner.style.display = result[keyName].some((path) => window.location.href.match(path)) ? 'block' : 'none';
-    });
-  }, 3000);
-}
+chrome.runtime.onMessage.addListener(() => {
+  toggleBanner();
+});
 
-setInterval(toggleBanner, 200);
-window.addEventListener('keydown', handleKeydown);
+interval = setInterval(() => {
+  if (window.location.href !== lastHref) {
+    lastHref = window.location.href;
+    toggleBanner();
+  }
+}, 200);

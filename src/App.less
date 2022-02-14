@@ -17,9 +17,8 @@ code {
 .Popup {
   margin: 0;
   border: solid #EE312D 3px;
-  padding-bottom: 10px;
   min-width: 500px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .Title {
@@ -33,8 +32,18 @@ code {
 }
 
 .Scrollable {
-  height: 300px;
+  height: 280px;
   overflow-y: auto;
+}
+
+.Footer {
+  padding: 8px 25px;
+  border-top: solid 2px #00000010;
+}
+
+.SpaceBetween {
+  display: flex;
+  justify-content: space-between;
 }
 
 .InputContainer {

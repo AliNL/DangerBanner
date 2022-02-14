@@ -74,13 +74,23 @@
   "scripts": {
     "start": "node scripts/start",
     "build": "node scripts/build",
-    "test": "node scripts/test"
+    "test": "node scripts/test",
+    "lint:fix": "eslint . --fix"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "ignorePatterns": [
+      "node_modules",
+      "build",
+      "config",
+      "scripts"
+    ],
+    "globals": {
+      "chrome": "readonly"
+    }
   },
   "browserslist": {
     "production": [
