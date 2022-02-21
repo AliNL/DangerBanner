@@ -17,7 +17,7 @@ const enable = () => {
 
 const blink = () => {
   chrome.browserAction.setBadgeBackgroundColor({color: `rgb(${255 - Math.abs(colorIdx)}, 0, 0)`});
-  colorIdx = colorIdx > 245 ? -255 : colorIdx + 10;
+  colorIdx = colorIdx > 235 ? -255 : colorIdx + 20;
 }
 
 chrome.tabs.onUpdated.addListener((tabId) => {
@@ -31,11 +31,20 @@ chrome.tabs.onActivated.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  chrome.browserAction.setBadgeText({text: '!'}, () => {
-    interval = setInterval(blink, 50);
-    timeout = setTimeout(enable, message);
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, 'refresh');
-    });
-  })
+  if (message === 0) {
+    chrome.browserAction.setBadgeText({text: ''}, () => {
+      enable();
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, 'refresh');
+      });
+    })
+  } else {
+    chrome.browserAction.setBadgeText({text: '!'}, () => {
+      interval = setInterval(blink, 50);
+      timeout = setTimeout(enable, message);
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, 'refresh');
+      });
+    })
+  }
 });
