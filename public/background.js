@@ -1,50 +1,64 @@
+const keyName = 'danger-banner-path-list';
+const enabledTimeName = 'danger-banner-enabled-time';
 let timeout = null;
-let interval = null;
-let colorIdx = 0;
 
-chrome.browserAction.setBadgeBackgroundColor({color: "rgb(255, 0, 0)"});
-
-
-const enable = () => {
-  chrome.browserAction.setBadgeText({text: ''}, () => {
-    clearTimeout(timeout);
-    clearInterval(interval);
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, 'refresh');
-    });
-  });
-}
-
-const blink = () => {
-  chrome.browserAction.setBadgeBackgroundColor({color: `rgb(${255 - Math.abs(colorIdx)}, 0, 0)`});
-  colorIdx = colorIdx > 235 ? -255 : colorIdx + 20;
-}
-
-chrome.tabs.onUpdated.addListener((tabId) => {
-  chrome.tabs.sendMessage(tabId, 'refresh');
-});
-
-chrome.tabs.onActivated.addListener(() => {
+const refreshActiveTab = () => {
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     chrome.tabs.sendMessage(tabs[0].id, 'refresh');
   });
-});
+};
+
+const enabledMode = () => {
+  chrome.browserAction.setIcon({
+    path: {
+      '16': 'images/icon16.png',
+      '32': 'images/icon32.png',
+      '48': 'images/icon48.png',
+      '128': 'images/icon128.png',
+    }
+  });
+  chrome.browserAction.setBadgeText({text: ''});
+  refreshActiveTab();
+}
+
+const disabledMode = () => {
+  chrome.browserAction.setIcon({
+    path: {
+      '16': 'images/icon16-disabled.png',
+      '32': 'images/icon32-disabled.png',
+      '48': 'images/icon48-disabled.png',
+      '128': 'images/icon128-disabled.png',
+    }
+  });
+  chrome.browserAction.setBadgeText({text: '!'});
+  refreshActiveTab();
+}
+
+
+const enable = () => {
+  enabledMode();
+  clearTimeout(timeout);
+}
+
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.browserAction.setBadgeBackgroundColor({color: "#EE312D"});
+  chrome.storage.local.get({[keyName]: [], [enabledTimeName]: 0}, (result) => {
+    if (result[enabledTimeName] < Date.now()) {
+      enable();
+    } else {
+      disabledMode();
+    }
+  })
+})
+
+chrome.tabs.onActivated.addListener(refreshActiveTab);
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message === 0) {
-    chrome.browserAction.setBadgeText({text: ''}, () => {
-      enable();
-      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, 'refresh');
-      });
-    })
+    enable();
   } else {
-    chrome.browserAction.setBadgeText({text: '!'}, () => {
-      interval = setInterval(blink, 50);
-      timeout = setTimeout(enable, message);
-      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, 'refresh');
-      });
-    })
+    disabledMode();
+    timeout = setTimeout(enable, message);
   }
 });
