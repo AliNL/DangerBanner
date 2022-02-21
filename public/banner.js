@@ -21,7 +21,12 @@ const toggleBanner = () => {
   try {
     chrome.storage.local.get({[keyName]: [], [enabledTimeName]: 0}, (result) => {
       if (result[enabledTimeName] < Date.now()) {
-        banner.style.display = result[keyName].some((path) => window.location.href.match(path)) ? 'block' : 'none';
+        banner.style.display = result[keyName].some((path) => {
+          if (path.startsWith('/') && path.endsWith('/')) {
+            return window.location.href.match(path.slice(1, path.length - 1));
+          }
+          return window.location.href.includes(path);
+        }) ? 'block' : 'none';
       } else {
         banner.style.display = 'none';
       }
