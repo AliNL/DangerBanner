@@ -1,15 +1,26 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Input, Button, Space, Tooltip} from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import {
+  Input, Button, Space, Tooltip,
+} from 'antd';
 import './App.less';
 
-const notEmpty = (path) => (path.trim().length > 0);
-const isRegex = (path) => (path.startsWith('/') && path.endsWith('/'));
+const isRegex = (path) => (path.trim().startsWith('/') && path.trim().endsWith('/'));
 const onlyUnique = (value, index, self) => self.indexOf(value) === index;
+const notEmpty = (path) => {
+  const trimResult = path.trim();
+  if (isRegex(trimResult)) {
+    return trimResult.length > 2;
+  }
+  return trimResult.length > 0;
+};
 
-const Editable = ({initValue, initEditing, saveItem, deleteItem}) => {
+function Editable({
+  initValue, initEditing, saveItem, deleteItem,
+}) {
   const [editing, setEditing] = useState(initEditing);
   const [unsaved, setUnsaved] = useState(false);
-  const [regex, setRegex] = useState(false);
+  const [regex, setRegex] = useState(isRegex(initValue));
   const inputRef = useRef(null);
   useEffect(() => {
     if (editing) {
@@ -21,27 +32,23 @@ const Editable = ({initValue, initEditing, saveItem, deleteItem}) => {
       {editing ? (
         <Tooltip
           title={regex ? '' : (
-            <span>Surround with
-              <span style={{
-                color: '#EE312D',
-                fontSize: 16,
-                fontWeight: 800,
-              }}
-              >
-                &#47;&#47;
-              </span>
+            <span>
+              Surround with
+              {' '}
+              <span style={{ color: '#EE312D', fontSize: 16, fontWeight: 800 }}>&#47;&#47;</span>
+              {' '}
               to use regex
             </span>
           )}
           placement="topLeft"
-          color='#222'
+          color="#222"
           mouseEnterDelay={2}
         >
           <Input
             ref={inputRef}
-            className='CustomInput'
+            className="CustomInput"
             defaultValue={initValue}
-            placeholder='Please input dangerous path'
+            placeholder="Please input dangerous path"
             onChange={(e) => {
               setRegex(isRegex(e.target.value));
             }}
@@ -62,27 +69,42 @@ const Editable = ({initValue, initEditing, saveItem, deleteItem}) => {
           />
         </Tooltip>
       ) : (
-        <div
-          className='ant-input HoverBorder'
-          style={{minHeight: 32, width: '100%'}}
+        <Button
+          className="ant-input HoverBorder"
+          style={{ minHeight: 32, width: '100%' }}
           onClick={() => {
             setEditing(true);
           }}
         >
           {initValue}
-        </div>
+        </Button>
       )}
-      <img
-        className='DeleteIcon'
+      <Button
+        icon={(
+          <img
+            alt="delete"
+            src="/images/delete.png"
+          />
+        )}
+        className="DeleteIcon"
         onClick={(e) => {
           deleteItem();
           e.stopPropagation();
         }}
-        alt='delete'
-        src='/images/delete.png'
       />
     </div>
   );
+}
+
+Editable.propTypes = {
+  initValue: PropTypes.string.isRequired,
+  initEditing: PropTypes.bool,
+  saveItem: PropTypes.func.isRequired,
+  deleteItem: PropTypes.func.isRequired,
+};
+
+Editable.defaultProps = {
+  initEditing: false,
 };
 
 let timeout = null;
@@ -90,12 +112,12 @@ let timeout = null;
 export const keyName = 'danger-banner-path-list';
 export const enabledTimeName = 'danger-banner-enabled-time';
 
-const App = () => {
+function App() {
   const [pathList, setPathList] = useState(['']);
   const [enabledTime, setEnabledTime] = useState(0);
 
   useEffect(() => {
-    window.chrome.storage.local.get({[keyName]: [], [enabledTimeName]: 0}, (result) => {
+    window.chrome.storage.local.get({ [keyName]: [], [enabledTimeName]: 0 }, (result) => {
       setPathList(result[keyName]);
       setEnabledTime(result[enabledTimeName]);
     });
@@ -104,12 +126,12 @@ const App = () => {
   const saveList = (list) => {
     const formattedList = list.filter(notEmpty).map((path) => (path.trim())).filter(onlyUnique);
     setPathList(formattedList);
-    window.chrome.storage.local.set({[keyName]: formattedList}, () => {
-      window.chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    window.chrome.storage.local.set({ [keyName]: formattedList }, () => {
+      window.chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         window.chrome.tabs.sendMessage(tabs[0].id, 'refresh');
       });
     });
-  }
+  };
 
   const saveItem = (idx) => (value) => {
     pathList[idx] = value;
@@ -134,25 +156,25 @@ const App = () => {
       result += ' next day';
     }
     return result;
-  }
+  };
 
   const enableNow = () => {
     setEnabledTime(0);
-    window.chrome.storage.local.set({[enabledTimeName]: 0}, () => {
+    window.chrome.storage.local.set({ [enabledTimeName]: 0 }, () => {
       clearTimeout(timeout);
       window.chrome.runtime.sendMessage(0);
     });
-  }
+  };
 
   const disableFor = (minutes) => () => {
     const milliseconds = minutes * 60 * 1000;
     const newEnabledTime = Date.now() + milliseconds;
     setEnabledTime(newEnabledTime);
-    window.chrome.storage.local.set({[enabledTimeName]: newEnabledTime}, () => {
+    window.chrome.storage.local.set({ [enabledTimeName]: newEnabledTime }, () => {
       timeout = setTimeout(enableNow, milliseconds);
       window.chrome.runtime.sendMessage(milliseconds);
     });
-  }
+  };
 
   const disableToday = () => {
     const now = new Date();
@@ -162,28 +184,30 @@ const App = () => {
     now.setSeconds(0);
     now.setMilliseconds(0);
     setEnabledTime(now.getTime());
-    window.chrome.storage.local.set({[enabledTimeName]: now.getTime()}, () => {
+    window.chrome.storage.local.set({ [enabledTimeName]: now.getTime() }, () => {
       const milliseconds = now.getTime() - Date.now();
       timeout = setTimeout(enableNow, milliseconds);
       window.chrome.runtime.sendMessage(milliseconds);
     });
-  }
+  };
 
   return (
     <div className="Popup">
       <div className="Title">Show Alerts on Following Paths</div>
       <div className="Scrollable">
-        {pathList.map((path, idx) => <Editable
-          key={path}
-          initValue={path}
-          initEditing={false}
-          saveItem={saveItem(idx)}
-          deleteItem={deleteItem(idx)}
-        />)}
+        {pathList.map((path, idx) => (
+          <Editable
+            key={path}
+            initValue={path}
+            initEditing={false}
+            saveItem={saveItem(idx)}
+            deleteItem={deleteItem(idx)}
+          />
+        ))}
         <Editable
           key="new-line"
           initValue=""
-          initEditing={true}
+          initEditing
           saveItem={saveItem(pathList.length)}
           deleteItem={deleteItem(pathList.length)}
         />
@@ -208,6 +232,6 @@ const App = () => {
       </div>
     </div>
   );
-};
+}
 
 export default App;

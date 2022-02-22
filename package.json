@@ -26,6 +26,7 @@
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "eslint": "^7.11.0",
+    "eslint-config-airbnb": "^19.0.4",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-import": "^2.22.1",
@@ -54,6 +55,7 @@
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "5.0.2",
     "prompts": "2.4.0",
+    "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-app-polyfill": "^2.0.0",
     "react-dev-utils": "^11.0.3",
@@ -83,7 +85,8 @@
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
+      "react-app/jest",
+      "airbnb"
     ],
     "ignorePatterns": [
       "node_modules",
@@ -93,16 +96,6 @@
     ],
     "globals": {
       "chrome": "readonly"
-    },
-    "rules": {
-      "quotes": [
-        2,
-        "single",
-        {
-          "avoidEscape": true,
-          "allowTemplateLiterals": true
-        }
-      ]
     }
   },
   "browserslist": {
@@ -123,7 +116,8 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
+      "!src/**/*.d.ts",
+      "!src/index.jsx"
     ],
     "setupFiles": [
       "react-app-polyfill/jsdom"

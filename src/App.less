@@ -68,13 +68,15 @@ code {
   border-left-color: transparent;
   border-right-color: transparent;
   border-bottom-color: #9A9C9E;
+  text-align: left;
   color: #616364;
-  min-height: 32px;
+  height: 32px;
   width: 100%;
 }
 
 .HoverBorder:hover {
   border-color: #d9d9d9;
+  color: #616364;
 }
 
 .DeleteIcon {
@@ -83,12 +85,25 @@ code {
   position: absolute;
   top: 7px;
   right: 7px;
-  display: none;
-  cursor: pointer;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
 }
 
-.InputContainer:hover .DeleteIcon {
-  display: inline;
+.DeleteIcon img {
+  width: 16px;
+  height: 16px;
+  vertical-align: top;
+}
+
+.InputContainer:hover .DeleteIcon,
+.DeleteIcon:focus {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .CustomInput {
@@ -96,4 +111,10 @@ code {
   display: block;
   width: 100%;
   color: #808285;
+}
+
+.Regex:before, .Regex:after {
+  content: "/";
+  position: absolute;
+  color: #0074D9;
 }
