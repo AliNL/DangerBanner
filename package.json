@@ -7,7 +7,7 @@
     "@craco/craco": "^6.1.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
     "@svgr/webpack": "5.5.0",
-    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
@@ -75,7 +75,8 @@
   "scripts": {
     "start": "node scripts/start",
     "build": "node scripts/build",
-    "test": "node scripts/test",
+    "test": "node scripts/test --coverage",
+    "test:ci": "node scripts/test --coverage --watchAll=false",
     "lint:fix": "eslint . --fix"
   },
   "eslintConfig": {
@@ -91,6 +92,16 @@
     ],
     "globals": {
       "chrome": "readonly"
+    },
+    "rules": {
+      "quotes": [
+        2,
+        "single",
+        {
+          "avoidEscape": true,
+          "allowTemplateLiterals": true
+        }
+      ]
     }
   },
   "browserslist": {
@@ -123,6 +134,7 @@
     ],
     "testEnvironment": "jsdom",
     "testRunner": "/Users/yingzhou/Documents/PersonalProjects/DangerBanner/node_modules/jest-circus/runner.js",
+    "timers": "modern",
     "transform": {
       "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
@@ -162,7 +174,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build"
+      "pre-push": "npm test:ci",
+      "post-commit": "npm run build"
     }
   }
 }

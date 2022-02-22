@@ -4,9 +4,11 @@ fileignoreconfig:
   - filename: config/jest/fileTransform.js
     checksum: 90b04b8ad823f8166ea6a4be0a426787ac25ee569135cf4ecfd4c34577309072
   - filename: package-lock.json
-    checksum: 717c8d3afebcd54fcbc308c137ddf23078db52272a306449846091aa520276e8
+    checksum: a014ea0e79fc85d5273eb1f2e1929c1ce73461f236311f9322d3a55a84b2cc93
   - filename: src/App.js
-    checksum: 8ba9af982a9cab31f79f37dd981645f2f625295fc2325dc0f35f852cd3e7b865
+    checksum: ca87313ce09494c8b5953fd174d885fac4e0fd9d7d2367924e6a5eba27df1617
+  - filename: src/App.test.js
+    checksum: 17f27e9aaa369530b2ca20496f617ead820b483e928a4601ac7d9950a0e2cc06
   - filename: config/getHttpsConfig.js
     checksum: 74188b0d0a3a81d1586e2dcf953af935736b6cef0bf6b696b104cfc1b827be21
   - filename: config/webpack.config.js
