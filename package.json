@@ -77,7 +77,8 @@
     "build": "node scripts/build",
     "test": "node scripts/test --coverage",
     "test:ci": "node scripts/test --coverage --watchAll=false",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
