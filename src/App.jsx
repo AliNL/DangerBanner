@@ -20,18 +20,14 @@ function Editable({
 }) {
   const [editing, setEditing] = useState(initEditing);
   const [unsaved, setUnsaved] = useState(false);
-  const [regex, setRegex] = useState(isRegex(initValue));
+  const [empty, setEmpty] = useState(!notEmpty(initValue));
   const inputRef = useRef(null);
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
+
   return (
-    <div className={`InputContainer ${unsaved ? 'unsaved' : ''}`}>
+    <div className={`InputContainer ${unsaved ? 'unsaved' : ''} ${empty ? 'Empty' : ''}`}>
       {editing ? (
         <Tooltip
-          title={regex ? '' : (
+          title={empty ? (
             <span>
               Surround with
               {' '}
@@ -39,18 +35,20 @@ function Editable({
               {' '}
               to use regex
             </span>
-          )}
+          ) : ''}
           placement="topLeft"
           color="#222"
           mouseEnterDelay={2}
         >
           <Input
+            autoFocus
             ref={inputRef}
             className="CustomInput"
             defaultValue={initValue}
+            maxLength={1000}
             placeholder="Please input dangerous path"
             onChange={(e) => {
-              setRegex(isRegex(e.target.value));
+              setEmpty(!notEmpty(e.target.value));
             }}
             onFocus={() => {
               setUnsaved(false);
@@ -70,6 +68,7 @@ function Editable({
         </Tooltip>
       ) : (
         <Button
+          title="click to edit"
           className="ant-input HoverBorder"
           style={{ minHeight: 32, width: '100%' }}
           onClick={() => {
@@ -80,6 +79,30 @@ function Editable({
         </Button>
       )}
       <Button
+        disabled={!empty}
+        title="paste current url"
+        aria-label="paste current url"
+        icon={(
+          <img
+            alt="paste current url"
+            src="/images/paste.png"
+          />
+        )}
+        className="PasteIcon"
+        onClick={(e) => {
+          window.chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const { url } = tabs[0];
+            inputRef.current.setState({ value: url });
+            inputRef.current.focus();
+            setEmpty(!notEmpty(url));
+            setEditing(true);
+          });
+          e.stopPropagation();
+        }}
+      />
+      <Button
+        title="delete"
+        aria-label="delete"
         icon={(
           <img
             alt="delete"
@@ -222,9 +245,9 @@ function App() {
         {enabledTime < Date.now() ? (
           <Space>
             <span>Disable for</span>
-            <Button onClick={disableFor(1)}>1 min</Button>
-            <Button onClick={disableFor(60)}>1 hour</Button>
-            <Button onClick={disableToday}>today</Button>
+            <Button title="disable for 1 minute" onClick={disableFor(1)}>1 min</Button>
+            <Button title="disable for 1 hour" onClick={disableFor(60)}>1 hour</Button>
+            <Button title="disable for today" onClick={disableToday}>today</Button>
           </Space>
         ) : (
           <div className="SpaceBetween">
@@ -232,7 +255,7 @@ function App() {
               <span>Disabled until</span>
               <span>{formatDateTime(enabledTime)}</span>
             </Space>
-            <Button type="primary" onClick={enableNow}>Enable Now</Button>
+            <Button autoFocus title="enable now" type="primary" onClick={enableNow}>Enable Now</Button>
           </div>
         )}
       </div>

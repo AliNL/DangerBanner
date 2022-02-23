@@ -294,15 +294,40 @@ describe('Modify Path List', () => {
     expect(editableAfter[1].firstChild).toHaveValue('');
     expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1'] }, expect.anything());
   });
+
+  test('should add current path to empty line when click add button', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback({ ...config, [keyName]: ['existing path 1'] });
+    });
+    fakeTabs.mockImplementation((config, callback) => {
+      callback([{ url: 'test' }]);
+    });
+    const { container } = render(<App />);
+    const [path1, newLine] = container.getElementsByClassName('InputContainer');
+    expect(path1).not.toHaveClass('Empty');
+    expect(newLine).toHaveClass('Empty');
+    userEvent.hover(newLine);
+    userEvent.click(newLine.childNodes[1]);
+    expect(newLine.firstChild).toHaveValue('test');
+
+    userEvent.click(path1.firstChild);
+    userEvent.clear(path1.firstChild);
+    expect(path1).toHaveClass('Empty');
+    userEvent.hover(path1);
+    userEvent.click(path1.childNodes[1]);
+    expect(path1.firstChild).toHaveValue('test');
+  });
 });
 
 describe('Disable And Enable', () => {
   test('should show disable until 00:01:00 when click disable for 1 min', () => {
     const { container } = render(<App />);
+    const [disable1] = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
+    userEvent.click(disable1);
     const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
-    userEvent.click(buttons[0]);
     expect(container).toContainHTML('<span>00:01:00</span>');
-    expect(container.getElementsByClassName('Footer')[0].getElementsByTagName('button')[0]).toHaveTextContent('Enable Now');
+    expect(buttons[0]).toHaveTextContent('Enable Now');
+    expect(buttons[0]).toHaveFocus();
     expect(fakeSave).toHaveBeenCalledTimes(1);
     expect(fakeSave).toHaveBeenCalledWith(
       { [enabledTimeName]: fakeTime + 60 * 1000 },
