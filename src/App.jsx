@@ -157,6 +157,10 @@ function App() {
     });
   };
 
+  const sortList = () => {
+    saveList(pathList.sort());
+  };
+
   const saveItem = (idx) => (value) => {
     if (idx === pathList.length) {
       setNewKey(Date.now());
@@ -223,7 +227,22 @@ function App() {
 
   return (
     <div className="Popup">
-      <div className="Title">Show Alerts on Following Paths</div>
+      <div className="Title">
+        Show Alerts on Following Paths
+        <Button
+          title="sort"
+          aria-label="sort"
+          icon={(
+            <img
+              alt="sort"
+              src="/images/sort.png"
+            />
+          )}
+          type="primary"
+          className="SortIcon"
+          onClick={sortList}
+        />
+      </div>
       <div className="Scrollable">
         {pathList.map((path, idx) => (
           <Editable

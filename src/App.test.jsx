@@ -317,6 +317,27 @@ describe('Modify Path List', () => {
     userEvent.click(path1.childNodes[1]);
     expect(path1.firstChild).toHaveValue('test');
   });
+
+  test('should sort existing path in alphabetical order when click sort button', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback({ ...config, [keyName]: ['existing path 2', 'existing path 3', 'existing path 1'] });
+    });
+    const { container } = render(<App />);
+    const editableBefore = container.getElementsByClassName('InputContainer');
+    userEvent.type(editableBefore[3].firstChild, 'test');
+    userEvent.click(editableBefore[0].firstChild);
+    userEvent.clear(editableBefore[0].firstChild);
+    userEvent.type(editableBefore[0].firstChild, 'existing path 4');
+    userEvent.click(container.getElementsByClassName('SortIcon')[0]);
+    const editableAfter = container.getElementsByClassName('InputContainer');
+    expect(editableAfter[3]).toHaveClass('unsaved');
+    expect(editableAfter[3].firstChild).toHaveValue('test');
+    expect(editableAfter[1]).toHaveClass('unsaved');
+    expect(editableAfter[1].firstChild).toHaveValue('existing path 4');
+    expect(editableAfter[0].firstChild).toHaveTextContent('existing path 1');
+    expect(editableAfter[2].firstChild).toHaveTextContent('existing path 3');
+    expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1', 'existing path 2', 'existing path 3'] }, expect.anything());
+  });
 });
 
 describe('Disable And Enable', () => {
