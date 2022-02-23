@@ -27,15 +27,10 @@ window.chrome = {
   },
 };
 
-const result = {
-  [keyName]: [],
-  [enabledTimeName]: 0,
-};
-
 describe('Render App', () => {
   test('should show existing path list and focus on an empty line when open', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [keyName]: ['existing path 1', 'existing path 2'] });
+      callback({ ...config, [keyName]: ['existing path 1', 'existing path 2'] });
     });
     const { container } = render(<App />);
     const editable = container.getElementsByClassName('InputContainer');
@@ -47,7 +42,7 @@ describe('Render App', () => {
 
   test('should focus on an empty line when open given no existing path', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback(result);
+      callback(config);
     });
     const { container } = render(<App />);
     const editable = container.getElementsByClassName('InputContainer');
@@ -58,7 +53,7 @@ describe('Render App', () => {
 
   test('should show disable buttons when open given enabled', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [enabledTimeName]: 0 });
+      callback({ ...config, [enabledTimeName]: 0 });
     });
     const { container } = render(<App />);
     const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
@@ -68,7 +63,7 @@ describe('Render App', () => {
 
   test('should show enable time and enable button when open given disabled', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [enabledTimeName]: fakeTime + 5000 });
+      callback({ ...config, [enabledTimeName]: fakeTime + 5000 });
     });
     const { container } = render(<App />);
     expect(container).toContainHTML('<span>00:00:05</span>');
@@ -79,7 +74,7 @@ describe('Render App', () => {
 
   test('should show enable time with next day when open given enable date is tomorrow', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [enabledTimeName]: fakeTime + 24 * 60 * 60 * 1000 + 10000 });
+      callback({ ...config, [enabledTimeName]: fakeTime + 24 * 60 * 60 * 1000 + 10000 });
     });
     const { container } = render(<App />);
     expect(container).toContainHTML('<span>00:00:10 next day</span>');
@@ -90,6 +85,12 @@ describe('Render App', () => {
 });
 
 describe('Modify Path List', () => {
+  beforeEach(() => {
+    jest.useRealTimers();
+  });
+  afterEach(() => {
+    jest.useFakeTimers('modern').setSystemTime(fakeTime);
+  });
   test('should save valid string to path list and add an empty line when press enter', () => {
     fakeFetch.mockImplementation((config, callback) => {
       callback(config);
@@ -156,7 +157,7 @@ describe('Modify Path List', () => {
 
   test('should not show unsaved label or keep edit mode when blur without change', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [keyName]: ['existing path 1'] });
+      callback({ ...config, [keyName]: ['existing path 1'] });
     });
     const { container } = render(<App />);
     const [path1, newLine] = container.getElementsByClassName('InputContainer');
@@ -171,7 +172,7 @@ describe('Modify Path List', () => {
 
   test('should not add a new line when press enter on previous lines', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [keyName]: ['existing path 1'] });
+      callback({ ...config, [keyName]: ['existing path 1'] });
     });
     const { container } = render(<App />);
     const [path1] = container.getElementsByClassName('InputContainer');
@@ -186,7 +187,7 @@ describe('Modify Path List', () => {
 
   test('should delete existing path when click delete icon', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [keyName]: ['existing path 1'] });
+      callback({ ...config, [keyName]: ['existing path 1'] });
     });
     const { container } = render(<App />);
     const [path1] = container.getElementsByClassName('InputContainer');
@@ -197,9 +198,9 @@ describe('Modify Path List', () => {
     expect(fakeSave).toHaveBeenCalledWith({ [keyName]: [] }, expect.anything());
   });
 
-  test('should keep the unchanged value when save another line', () => {
+  test('should keep the unchanged value in existing line when save another line', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [keyName]: ['existing path 1', 'existing path 2'] });
+      callback({ ...config, [keyName]: ['existing path 1', 'existing path 2'] });
     });
     const { container } = render(<App />);
     const [path1, path2] = container.getElementsByClassName('InputContainer');
@@ -221,6 +222,77 @@ describe('Modify Path List', () => {
     expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1 add something', 'existing path 2 add something'] }, expect.anything());
     expect(editable[0].firstChild.nodeName).toBe('BUTTON');
     expect(editable[0]).not.toHaveClass('unsaved');
+  });
+
+  test('should keep the unchanged value in new line when save another line', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback({ ...config, [keyName]: ['existing path 1'] });
+    });
+    const { container } = render(<App />);
+    const [path1, newLine] = container.getElementsByClassName('InputContainer');
+    userEvent.click(newLine.firstChild);
+    userEvent.type(newLine.firstChild, ' add something ');
+    userEvent.click(path1.firstChild);
+    userEvent.type(path1.firstChild, ' add something {enter}');
+
+    expect(newLine.firstChild.nodeName).toBe('INPUT');
+    expect(newLine.firstChild).toHaveValue(' add something ');
+    expect(newLine).toHaveClass('unsaved');
+    expect(fakeSave).toHaveBeenCalledTimes(1);
+    expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1 add something'] }, expect.anything());
+
+    userEvent.click(newLine.firstChild);
+    userEvent.type(newLine.firstChild, '{enter}');
+    expect(fakeSave).toHaveBeenCalledTimes(2);
+    expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1 add something', 'add something'] }, expect.anything());
+    const editable = container.getElementsByClassName('InputContainer');
+    expect(editable).toHaveLength(3);
+    expect(editable[1].firstChild.nodeName).toBe('BUTTON');
+    expect(editable[1]).not.toHaveClass('unsaved');
+    expect(editable[2].firstChild).toHaveFocus();
+  });
+
+  test('should clear the input when click delete on unsaved new line', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback(config);
+    });
+    const { container } = render(<App />);
+    const [newLine] = container.getElementsByClassName('InputContainer');
+    userEvent.type(newLine.firstChild, ' add something ');
+    userEvent.click(newLine.lastChild);
+    const [newLineCleared] = container.getElementsByClassName('InputContainer');
+    expect(newLineCleared.firstChild).toHaveFocus();
+    expect(newLineCleared.firstChild.nodeName).toBe('INPUT');
+    expect(newLineCleared.firstChild).toHaveValue('');
+  });
+
+  test('should not add the duplicated path when save the new line', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback({ ...config, [keyName]: ['existing path 1'] });
+    });
+    const { container } = render(<App />);
+    const editableBefore = container.getElementsByClassName('InputContainer');
+    userEvent.type(editableBefore[1].firstChild, ' existing path 1 {enter}');
+    const editableAfter = container.getElementsByClassName('InputContainer');
+    expect(editableAfter).toHaveLength(2);
+    expect(editableAfter[1].firstChild).toHaveValue('');
+    expect(editableAfter[1].firstChild).toHaveFocus();
+    expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1'] }, expect.anything());
+  });
+
+  test('should delete the duplicated path when change an existing path', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback({ ...config, [keyName]: ['existing path 1', 'existing path 2'] });
+    });
+    const { container } = render(<App />);
+    const editableBefore = container.getElementsByClassName('InputContainer');
+    userEvent.click(editableBefore[1].firstChild);
+    userEvent.clear(editableBefore[1].firstChild);
+    userEvent.type(editableBefore[1].firstChild, ' existing path 1 {enter}');
+    const editableAfter = container.getElementsByClassName('InputContainer');
+    expect(editableAfter).toHaveLength(2);
+    expect(editableAfter[1].firstChild).toHaveValue('');
+    expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1'] }, expect.anything());
   });
 });
 
@@ -264,7 +336,7 @@ describe('Disable And Enable', () => {
 
   test('should show disable buttons when click enable now', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [enabledTimeName]: fakeTime + 5000 });
+      callback({ ...config, [enabledTimeName]: fakeTime + 5000 });
     });
     const { container } = render(<App />);
     expect(container).toContainHTML('<span>00:00:05</span>');
@@ -293,7 +365,7 @@ describe('Send Event to Background Script', () => {
 
   test('should refresh when delete path', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [keyName]: ['existing path 1'] });
+      callback({ ...config, [keyName]: ['existing path 1'] });
     });
     const { container } = render(<App />);
     const [path1] = container.getElementsByClassName('InputContainer');
@@ -320,7 +392,7 @@ describe('Send Event to Background Script', () => {
 
   test('should refresh when enable', () => {
     fakeFetch.mockImplementation((config, callback) => {
-      callback({ ...result, [enabledTimeName]: fakeTime + 5000 });
+      callback({ ...config, [enabledTimeName]: fakeTime + 5000 });
     });
     const { container } = render(<App />);
     const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');

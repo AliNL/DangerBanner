@@ -115,6 +115,7 @@ export const enabledTimeName = 'danger-banner-enabled-time';
 function App() {
   const [pathList, setPathList] = useState(['']);
   const [enabledTime, setEnabledTime] = useState(0);
+  const [newKey, setNewKey] = useState(Date.now());
 
   useEffect(() => {
     window.chrome.storage.local.get({ [keyName]: [], [enabledTimeName]: 0 }, (result) => {
@@ -134,11 +135,17 @@ function App() {
   };
 
   const saveItem = (idx) => (value) => {
+    if (idx === pathList.length) {
+      setNewKey(Date.now());
+    }
     pathList[idx] = value;
     saveList(pathList);
   };
 
   const deleteItem = (idx) => () => {
+    if (idx === pathList.length) {
+      setNewKey(Date.now());
+    }
     pathList.splice(idx, 1);
     saveList(pathList);
   };
@@ -199,13 +206,12 @@ function App() {
           <Editable
             key={path}
             initValue={path}
-            initEditing={false}
             saveItem={saveItem(idx)}
             deleteItem={deleteItem(idx)}
           />
         ))}
         <Editable
-          key="new-line"
+          key={newKey}
           initValue=""
           initEditing
           saveItem={saveItem(pathList.length)}
