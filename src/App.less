@@ -61,16 +61,12 @@ code {
         }
       }
 
-      &.empty:hover .PasteIcon {
-        opacity: 1;
-        pointer-events: auto;
-        cursor: pointer;
-      }
-
-      &:hover .DeleteIcon {
-        opacity: 1;
-        pointer-events: auto;
-        cursor: pointer;
+      &:hover {
+        &.Empty .PasteIcon, .DeleteIcon {
+          opacity: 1;
+          pointer-events: auto;
+          cursor: pointer;
+        }
       }
 
       .HoverBorder {
@@ -113,9 +109,6 @@ code {
         cursor: default;
 
         &:hover, &:focus {
-          opacity: 1;
-          pointer-events: auto;
-          cursor: pointer;
           box-shadow: 0 0 0 2px #EE312D33;
         }
 

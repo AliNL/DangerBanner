@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import App, { keyName, enabledTimeName } from './App';
@@ -406,7 +406,9 @@ describe('Disable And Enable', () => {
     });
     const { container } = render(<App />);
     expect(container).toContainHTML('<span>00:00:05</span>');
-    jest.runAllTimers();
+    act(() => {
+      jest.runAllTimers();
+    });
     const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
     expect(buttons).toHaveLength(4);
   });
@@ -420,7 +422,9 @@ describe('Disable And Enable', () => {
     const [disable1] = footer.getElementsByTagName('button');
     userEvent.click(disable1);
     expect(footer.getElementsByTagName('button')[0]).toHaveTextContent('Enable Now');
-    jest.runAllTimers();
+    act(() => {
+      jest.runAllTimers();
+    });
     const buttons = footer.getElementsByTagName('button');
     expect(buttons).toHaveLength(4);
   });

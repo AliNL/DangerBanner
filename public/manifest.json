@@ -1,6 +1,6 @@
 {
   "name": "Danger Banner",
-  "version": "3.9",
+  "version": "4.0",
   "description": "An extension to show banner on specific path.",
   "manifest_version": 2,
   "permissions": [
