@@ -76,7 +76,7 @@
   },
   "scripts": {
     "start": "node scripts/start",
-    "build": "node scripts/build",
+    "build": "GENERATE_SOURCEMAP=false node scripts/build",
     "test": "node scripts/test --coverage",
     "test:ci": "node scripts/test --coverage --watchAll=false",
     "lint:fix": "eslint . --fix",

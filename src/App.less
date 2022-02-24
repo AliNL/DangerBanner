@@ -1,4 +1,8 @@
-@import "~antd/dist/antd.less";
+@import "~antd/lib/style/index.less";
+@import "~antd/lib/button/style/index";
+@import "~antd/lib/input/style/index";
+@import "~antd/lib/space/style/index";
+@import "~antd/lib/tooltip/style/index";
 
 body {
   margin: 0;
@@ -19,124 +23,131 @@ code {
   border: solid #EE312D 3px;
   width: 500px;
   overflow: hidden;
-}
 
-.Title {
-  background-color: #EE312D;
-  text-align: center;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 2;
-  margin-bottom: 20px;
-}
+  .Title {
+    background-color: #EE312D;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 2;
+    margin-bottom: 20px;
+  }
 
+  .Scrollable {
+    height: 280px;
+    overflow-y: auto;
+    padding-bottom: 16px;
 
-.ReloadIcon img {
-  height: 20px;
-  width: 20px;
-  vertical-align: sub;
-}
+    .InputContainer {
+      position: relative;
+      margin: 8px 25px;
 
-.Scrollable {
-  height: 280px;
-  overflow-y: auto;
-  padding-bottom: 16px;
-}
+      &.unsaved {
+        input {
+          border-color: #EE312D;
+        }
 
-.Footer {
-  display: flex;
-  border-top: solid 2px #00000010;
-  padding: 8px 25px;
-  justify-content: space-between;
-}
+        &:after {
+          content: 'unsaved';
+          position: absolute;
+          top: -5px;
+          left: 10px;
+          font-size: 10px;
+          line-height: 1;
+          color: #EE312D;
+          background-color: white;
+          padding: 0 3px;
+        }
+      }
 
-.InputContainer {
-  position: relative;
-  margin: 8px 25px;
-}
+      &.empty:hover .PasteIcon {
+        opacity: 1;
+        pointer-events: auto;
+        cursor: pointer;
+      }
 
-.InputContainer.unsaved input {
-  border-color: #EE312D;
-}
+      &:hover .DeleteIcon {
+        opacity: 1;
+        pointer-events: auto;
+        cursor: pointer;
+      }
 
-.InputContainer.unsaved:after {
-  content: 'unsaved';
-  position: absolute;
-  top: -5px;
-  left: 10px;
-  font-size: 10px;
-  line-height: 1;
-  color: #EE312D;
-  background-color: white;
-  padding: 0 3px;
-}
+      .HoverBorder {
+        border-top-color: transparent;
+        border-left-color: transparent;
+        border-right-color: transparent;
+        border-bottom-color: #9A9C9E;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 32px;
+        width: 100%;
 
-.HoverBorder {
-  border-top-color: transparent;
-  border-left-color: transparent;
-  border-right-color: transparent;
-  border-bottom-color: #9A9C9E;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  height: 32px;
-  width: 100%;
-}
+        &:hover {
+          border-color: #d9d9d9;
+          color: inherit;
+        }
 
-.HoverBorder span {
-  display: inline;
-}
+        span {
+          display: inline;
+        }
+      }
 
-.HoverBorder:hover {
-  border-color: #d9d9d9;
-  color: inherit;
-}
+      .CustomInput {
+        position: relative;
+        display: block;
+        width: 100%;
+        color: #666;
+      }
 
-.DeleteIcon, .PasteIcon {
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  border: none;
-  border-radius: 50%;
-  padding: 0;
-  opacity: 0;
-  pointer-events: none;
-  cursor: default;
-}
+      .DeleteIcon, .PasteIcon {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        border: none;
+        border-radius: 50%;
+        padding: 0;
+        opacity: 0;
+        pointer-events: none;
+        cursor: default;
 
-.DeleteIcon {
-  top: 8px;
-  right: 8px;
-}
+        &:hover, &:focus {
+          opacity: 1;
+          pointer-events: auto;
+          cursor: pointer;
+          box-shadow: 0 0 0 2px #EE312D33;
+        }
 
-.PasteIcon {
-  top: 8px;
-  right: 32px;
-}
+        img {
+          width: 16px;
+          height: 16px;
+          vertical-align: top;
+        }
+      }
 
-.DeleteIcon img, .PasteIcon img {
-  width: 16px;
-  height: 16px;
-  vertical-align: top;
-}
+      .DeleteIcon {
+        top: 8px;
+        right: 8px;
+      }
 
-.InputContainer:hover .DeleteIcon,
-.DeleteIcon:focus,
-.InputContainer.Empty:hover .PasteIcon,
-.PasteIcon:focus {
-  opacity: 1;
-  pointer-events: auto;
-  cursor: pointer;
-}
+      .PasteIcon {
+        top: 8px;
+        right: 32px;
+      }
+    }
+  }
 
-.DeleteIcon:focus, .DeleteIcon:hover, .PasteIcon:focus, .PasteIcon:hover {
-  box-shadow: 0 0 0 2px #EE312D33;
-}
+  .Footer {
+    display: flex;
+    border-top: solid 2px #00000010;
+    padding: 8px 25px;
+    justify-content: space-between;
 
-.CustomInput {
-  position: relative;
-  display: block;
-  width: 100%;
-  color: #666;
+    .ReloadIcon img {
+      height: 20px;
+      width: 20px;
+      vertical-align: sub;
+    }
+  }
 }
