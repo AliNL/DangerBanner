@@ -139,13 +139,7 @@ function App() {
   const [pathList, setPathList] = useState(['']);
   const [enabledTime, setEnabledTime] = useState(0);
   const [newKey, setNewKey] = useState(Date.now());
-
-  useEffect(() => {
-    window.chrome.storage.local.get({ [keyName]: [], [enabledTimeName]: 0 }, (result) => {
-      setPathList(result[keyName]);
-      setEnabledTime(result[enabledTimeName]);
-    });
-  }, []);
+  const [forceReload, setForceReload] = useState(Date.now());
 
   const saveList = (list) => {
     const formattedList = list.filter(notEmpty).map((path) => (path.trim())).filter(onlyUnique);
@@ -159,6 +153,7 @@ function App() {
 
   const sortList = () => {
     saveList(pathList.sort());
+    setForceReload(Date.now());
   };
 
   const saveItem = (idx) => (value) => {
@@ -225,25 +220,23 @@ function App() {
     });
   };
 
+  useEffect(() => {
+    window.chrome.storage.local.get({ [keyName]: [], [enabledTimeName]: 0 }, (result) => {
+      setPathList(result[keyName]);
+      setEnabledTime(result[enabledTimeName]);
+      timeout = setTimeout(enableNow, result[enabledTimeName] - Date.now());
+    });
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, []);
+
   return (
     <div className="Popup">
       <div className="Title">
         Show Alerts on Following Paths
-        <Button
-          title="sort"
-          aria-label="sort"
-          icon={(
-            <img
-              alt="sort"
-              src="/images/sort.png"
-            />
-          )}
-          type="primary"
-          className="SortIcon"
-          onClick={sortList}
-        />
       </div>
-      <div className="Scrollable">
+      <div className="Scrollable" key={forceReload}>
         {pathList.map((path, idx) => (
           <Editable
             key={path}
@@ -262,20 +255,36 @@ function App() {
       </div>
       <div className="Footer">
         {enabledTime < Date.now() ? (
-          <Space>
-            <span>Disable for</span>
-            <Button title="disable for 1 minute" onClick={disableFor(1)}>1 min</Button>
-            <Button title="disable for 1 hour" onClick={disableFor(60)}>1 hour</Button>
-            <Button title="disable for today" onClick={disableToday}>today</Button>
-          </Space>
+          <>
+            <Space>
+              <span>Disable for</span>
+              <Button title="disable for 1 minute" onClick={disableFor(1)}>1 min</Button>
+              <Button title="disable for 1 hour" onClick={disableFor(60)}>1 hour</Button>
+              <Button title="disable for today" onClick={disableToday}>today</Button>
+            </Space>
+            <Button
+              key="reload"
+              title="reload & sort"
+              aria-label="reload & sort"
+              shape="circle"
+              icon={(
+                <img
+                  alt="reload"
+                  src="/images/reload.png"
+                />
+              )}
+              className="ReloadIcon"
+              onClick={sortList}
+            />
+          </>
         ) : (
-          <div className="SpaceBetween">
+          <>
             <Space>
               <span>Disabled until</span>
               <span>{formatDateTime(enabledTime)}</span>
             </Space>
-            <Button autoFocus title="enable now" type="primary" onClick={enableNow}>Enable Now</Button>
-          </div>
+            <Button key="enable" autoFocus title="enable now" type="primary" onClick={enableNow}>Enable Now</Button>
+          </>
         )}
       </div>
     </div>

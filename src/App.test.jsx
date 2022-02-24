@@ -10,7 +10,7 @@ const fakeSave = jest.fn();
 const fakeTabs = jest.fn();
 const fakePost = jest.fn();
 const fakeTabId = 2;
-jest.setSystemTime(fakeTime);
+
 window.chrome = {
   storage: {
     local: {
@@ -26,6 +26,10 @@ window.chrome = {
     sendMessage: fakePost,
   },
 };
+
+beforeEach(() => {
+  jest.setSystemTime(fakeTime);
+});
 
 describe('Render App', () => {
   test('should show existing path list and focus on an empty line when open', () => {
@@ -57,7 +61,7 @@ describe('Render App', () => {
     });
     const { container } = render(<App />);
     const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
-    expect(buttons).toHaveLength(3);
+    expect(buttons).toHaveLength(4);
     expect(buttons[0]).not.toHaveClass('ant-btn-primary');
   });
 
@@ -328,13 +332,15 @@ describe('Modify Path List', () => {
     userEvent.click(editableBefore[0].firstChild);
     userEvent.clear(editableBefore[0].firstChild);
     userEvent.type(editableBefore[0].firstChild, 'existing path 4');
-    userEvent.click(container.getElementsByClassName('SortIcon')[0]);
+    userEvent.click(container.getElementsByClassName('ReloadIcon')[0]);
+
     const editableAfter = container.getElementsByClassName('InputContainer');
-    expect(editableAfter[3]).toHaveClass('unsaved');
-    expect(editableAfter[3].firstChild).toHaveValue('test');
-    expect(editableAfter[1]).toHaveClass('unsaved');
-    expect(editableAfter[1].firstChild).toHaveValue('existing path 4');
+    expect(editableAfter[3]).not.toHaveClass('unsaved');
+    expect(editableAfter[3].firstChild).toHaveFocus();
+    expect(editableAfter[3].firstChild).toHaveValue('');
+    expect(editableAfter[1]).not.toHaveClass('unsaved');
     expect(editableAfter[0].firstChild).toHaveTextContent('existing path 1');
+    expect(editableAfter[1].firstChild).toHaveTextContent('existing path 2');
     expect(editableAfter[2].firstChild).toHaveTextContent('existing path 3');
     expect(fakeSave).toHaveBeenCalledWith({ [keyName]: ['existing path 1', 'existing path 2', 'existing path 3'] }, expect.anything());
   });
@@ -389,9 +395,34 @@ describe('Disable And Enable', () => {
     const [enableNow] = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
     userEvent.click(enableNow);
     const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
-    expect(buttons).toHaveLength(3);
+    expect(buttons).toHaveLength(4);
     expect(fakeSave).toHaveBeenCalledTimes(1);
     expect(fakeSave).toHaveBeenCalledWith({ [enabledTimeName]: 0 }, expect.anything());
+  });
+
+  test('should enable automatically when timeout executed given already disabled', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback({ ...config, [enabledTimeName]: fakeTime + 5000 });
+    });
+    const { container } = render(<App />);
+    expect(container).toContainHTML('<span>00:00:05</span>');
+    jest.runAllTimers();
+    const buttons = container.getElementsByClassName('Footer')[0].getElementsByTagName('button');
+    expect(buttons).toHaveLength(4);
+  });
+
+  test('should enable automatically when timeout executed given disabled by user', () => {
+    fakeFetch.mockImplementation((config, callback) => {
+      callback(config);
+    });
+    const { container } = render(<App />);
+    const footer = container.getElementsByClassName('Footer')[0];
+    const [disable1] = footer.getElementsByTagName('button');
+    userEvent.click(disable1);
+    expect(footer.getElementsByTagName('button')[0]).toHaveTextContent('Enable Now');
+    jest.runAllTimers();
+    const buttons = footer.getElementsByTagName('button');
+    expect(buttons).toHaveLength(4);
   });
 });
 

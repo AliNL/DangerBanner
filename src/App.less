@@ -17,7 +17,7 @@ code {
 .Popup {
   margin: 0;
   border: solid #EE312D 3px;
-  min-width: 500px;
+  width: 500px;
   overflow: hidden;
 }
 
@@ -31,31 +31,23 @@ code {
   margin-bottom: 20px;
 }
 
-.SortIcon {
-  height: 24px;
-  width: 24px;
-  padding: 0;
-  margin-left: 4px;
-}
 
-.SortIcon img {
-  height: 14px;
-  width: 14px;
-  vertical-align: unset;
+.ReloadIcon img {
+  height: 20px;
+  width: 20px;
+  vertical-align: sub;
 }
 
 .Scrollable {
   height: 280px;
   overflow-y: auto;
+  padding-bottom: 16px;
 }
 
 .Footer {
-  padding: 8px 25px;
-  border-top: solid 2px #00000010;
-}
-
-.SpaceBetween {
   display: flex;
+  border-top: solid 2px #00000010;
+  padding: 8px 25px;
   justify-content: space-between;
 }
 
@@ -86,14 +78,19 @@ code {
   border-right-color: transparent;
   border-bottom-color: #9A9C9E;
   text-align: left;
-  color: #616364;
+  overflow: hidden;
+  text-overflow: ellipsis;
   height: 32px;
   width: 100%;
 }
 
+.HoverBorder span {
+  display: inline;
+}
+
 .HoverBorder:hover {
   border-color: #d9d9d9;
-  color: #616364;
+  color: inherit;
 }
 
 .DeleteIcon, .PasteIcon {
@@ -141,5 +138,5 @@ code {
   position: relative;
   display: block;
   width: 100%;
-  color: #808285;
+  color: #666;
 }
