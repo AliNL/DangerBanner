@@ -2,9 +2,15 @@ const keyName = 'danger-banner-path-list';
 const enabledTimeName = 'danger-banner-enabled-time';
 let timeout = null;
 
-const refreshActiveTab = () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, 'refresh');
+const informActiveTabs = () => {
+  chrome.tabs.query({ active: true }, (tabs) => {
+    tabs.forEach((tab) => {
+      chrome.tabs.sendMessage(tab.id, 'refresh', undefined, (response) => {
+        if (!response) {
+          chrome.tabs.reload(tab.id);
+        }
+      });
+    });
   });
 };
 
@@ -18,7 +24,7 @@ const enabledMode = () => {
     },
   });
   chrome.browserAction.setBadgeText({ text: '' });
-  refreshActiveTab();
+  informActiveTabs();
 };
 
 const disabledMode = () => {
@@ -31,7 +37,7 @@ const disabledMode = () => {
     },
   });
   chrome.browserAction.setBadgeText({ text: '!' });
-  refreshActiveTab();
+  informActiveTabs();
 };
 
 const enable = () => {
@@ -50,7 +56,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.tabs.onActivated.addListener(refreshActiveTab);
+chrome.tabs.onActivated.addListener(informActiveTabs);
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message === 0) {

@@ -32,13 +32,13 @@ const toggleBanner = () => {
       }
     });
   } catch (e) {
-    console.log('Please refresh the page');
     clearInterval(interval);
   }
 };
 
-chrome.runtime.onMessage.addListener(() => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   toggleBanner();
+  sendResponse('ok');
 });
 
 interval = setInterval(() => {
