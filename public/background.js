@@ -3,7 +3,7 @@ const enabledTimeName = 'danger-banner-enabled-time';
 let timeout = null;
 
 const informActiveTabs = () => {
-  chrome.tabs.query({ active: true }, (tabs) => {
+  chrome.tabs.query({ active: true, status: 'complete' }, (tabs) => {
     tabs.forEach((tab) => {
       chrome.tabs.sendMessage(tab.id, 'refresh', undefined, (response) => {
         if (!response) {
