@@ -1,0 +1,147 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  monospace;
+}
+
+.Popup {
+  margin: 0;
+  border: solid #EE312D 3px;
+  width: 500px;
+  overflow: hidden;
+}
+
+.Popup .Title {
+  background-color: #EE312D;
+  text-align: center;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 2;
+  margin-bottom: 20px;
+}
+
+.Popup .Scrollable {
+  height: 280px;
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+
+.Popup .Scrollable .InputContainer {
+  position: relative;
+  margin: 8px 25px;
+}
+
+.Popup .Scrollable .InputContainer.unsaved input {
+  border-color: #EE312D;
+}
+
+.Popup .Scrollable .InputContainer.unsaved:after {
+  content: 'unsaved';
+  position: absolute;
+  top: -5px;
+  left: 10px;
+  font-size: 10px;
+  line-height: 1;
+  color: #EE312D;
+  background-color: white;
+  padding: 0 3px;
+}
+
+.Popup .Scrollable .InputContainer:hover.Empty .PasteIcon {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.Popup .Scrollable .InputContainer:hover .DeleteIcon {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.Popup .Scrollable .InputContainer .HoverBorder {
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: #9A9C9E;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 32px;
+  width: 100%;
+}
+
+.Popup .Scrollable .InputContainer .HoverBorder:hover {
+  border-color: #d9d9d9;
+  color: inherit;
+}
+
+.Popup .Scrollable .InputContainer .HoverBorder span {
+  display: inline;
+}
+
+.Popup .Scrollable .InputContainer .CustomInput {
+  position: relative;
+  display: block;
+  width: 100%;
+  color: #666;
+}
+
+.Popup .Scrollable .InputContainer .DeleteIcon,
+.Popup .Scrollable .InputContainer .PasteIcon {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
+}
+
+.Popup .Scrollable .InputContainer .DeleteIcon:hover,
+.Popup .Scrollable .InputContainer .PasteIcon:hover,
+.Popup .Scrollable .InputContainer .DeleteIcon:focus,
+.Popup .Scrollable .InputContainer .PasteIcon:focus {
+  box-shadow: 0 0 0 2px #EE312D33;
+}
+
+.Popup .Scrollable .InputContainer .DeleteIcon img,
+.Popup .Scrollable .InputContainer .PasteIcon img {
+  width: 16px;
+  height: 16px;
+  vertical-align: top;
+}
+
+.Popup .Scrollable .InputContainer .DeleteIcon {
+  top: 8px;
+  right: 8px;
+}
+
+.Popup .Scrollable .InputContainer .PasteIcon {
+  top: 8px;
+  right: 32px;
+}
+
+.Popup .Footer {
+  display: flex;
+  border-top: solid 2px #00000010;
+  padding: 8px 25px;
+  justify-content: space-between;
+}
+
+.Popup .Footer .ReloadIcon img {
+  height: 20px;
+  width: 20px;
+  vertical-align: sub;
+}

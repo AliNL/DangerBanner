@@ -1,9 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Input, Button, Space, Tooltip,
+  Input, Button, Space, Tooltip, ConfigProvider,
 } from 'antd';
-import './App.less';
+import 'antd/lib/style/reset.css';
+import 'antd/lib/button/style';
+import 'antd/lib/input/style';
+import 'antd/lib/space/style';
+import 'antd/lib/tooltip/style';
+import './App.css';
 
 const isRegex = (path) => (path.trim().startsWith('/') && path.trim().endsWith('/'));
 const onlyUnique = (value, index, self) => self.indexOf(value) === index;
@@ -18,10 +23,10 @@ const notEmpty = (path) => {
 function Editable({
   initValue, initEditing, saveItem, deleteItem,
 }) {
+  const [inputValue, setInputValue] = useState(initValue);
   const [editing, setEditing] = useState(initEditing);
   const [unsaved, setUnsaved] = useState(false);
   const [empty, setEmpty] = useState(!notEmpty(initValue));
-  const inputRef = useRef(null);
 
   return (
     <div className={`InputContainer ${unsaved ? 'unsaved' : ''} ${empty ? 'Empty' : ''}`}>
@@ -42,12 +47,13 @@ function Editable({
         >
           <Input
             autoFocus
-            ref={inputRef}
             className="CustomInput"
+            value={inputValue}
             defaultValue={initValue}
             maxLength={1000}
             placeholder="Please input dangerous path"
             onChange={(e) => {
+              setInputValue(e.target.value);
               setEmpty(!notEmpty(e.target.value));
             }}
             onFocus={() => {
@@ -92,10 +98,9 @@ function Editable({
         onClick={(e) => {
           window.chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             const { url } = tabs[0];
-            inputRef.current.setState({ value: url });
-            inputRef.current.focus();
-            setEmpty(!notEmpty(url));
             setEditing(true);
+            setEmpty(!notEmpty(url));
+            setInputValue(url);
           });
           e.stopPropagation();
         }}
@@ -232,62 +237,71 @@ function App() {
   }, []);
 
   return (
-    <div className="Popup">
-      <div className="Title">
-        Show Alerts on Following Paths
-      </div>
-      <div className="Scrollable" key={forceReload}>
-        {pathList.map((path, idx) => (
-          <Editable
-            key={path}
-            initValue={path}
-            saveItem={saveItem(idx)}
-            deleteItem={deleteItem(idx)}
-          />
-        ))}
-        <Editable
-          key={newKey}
-          initValue=""
-          initEditing
-          saveItem={saveItem(pathList.length)}
-          deleteItem={deleteItem(pathList.length)}
-        />
-      </div>
-      <div className="Footer">
-        {enabledTime < Date.now() ? (
-          <>
-            <Space>
-              <span>Disable for</span>
-              <Button title="disable for 1 minute" onClick={disableFor(1)}>1 min</Button>
-              <Button title="disable for 1 hour" onClick={disableFor(60)}>1 hour</Button>
-              <Button title="disable for today" onClick={disableToday}>today</Button>
-            </Space>
-            <Button
-              key="reload"
-              title="reload & sort"
-              aria-label="reload & sort"
-              shape="circle"
-              icon={(
-                <img
-                  alt="reload"
-                  src="/images/reload.png"
-                />
-              )}
-              className="ReloadIcon"
-              onClick={sortList}
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#EE312D',
+          borderRadius: 0,
+        },
+      }}
+    >
+      <div className="Popup">
+        <div className="Title">
+          Show Alerts on Following Paths
+        </div>
+        <div className="Scrollable" key={forceReload}>
+          {pathList.map((path, idx) => (
+            <Editable
+              key={path}
+              initValue={path}
+              saveItem={saveItem(idx)}
+              deleteItem={deleteItem(idx)}
             />
-          </>
-        ) : (
-          <>
-            <Space>
-              <span>Disabled until</span>
-              <span>{formatDateTime(enabledTime)}</span>
-            </Space>
-            <Button key="enable" autoFocus title="enable now" type="primary" onClick={enableNow}>Enable Now</Button>
-          </>
-        )}
+          ))}
+          <Editable
+            key={newKey}
+            initValue=""
+            initEditing
+            saveItem={saveItem(pathList.length)}
+            deleteItem={deleteItem(pathList.length)}
+          />
+        </div>
+        <div className="Footer">
+          {enabledTime < Date.now() ? (
+            <>
+              <Space>
+                <span>Disable for</span>
+                <Button title="disable for 1 minute" onClick={disableFor(1)}>1 min</Button>
+                <Button title="disable for 1 hour" onClick={disableFor(60)}>1 hour</Button>
+                <Button title="disable for today" onClick={disableToday}>today</Button>
+              </Space>
+              <Button
+                key="reload"
+                title="reload & sort"
+                aria-label="reload & sort"
+                shape="circle"
+                icon={(
+                  <img
+                    alt="reload"
+                    src="/images/reload.png"
+                  />
+                )}
+                className="ReloadIcon"
+                onClick={sortList}
+              />
+            </>
+          ) : (
+            <>
+              <Space>
+                <span>Disabled until</span>
+                <span>{formatDateTime(enabledTime)}</span>
+              </Space>
+              <Button key="enable" autoFocus title="enable now" type="primary" onClick={enableNow}>Enable Now</Button>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 }
 
